@@ -1,0 +1,30 @@
+{-
+
+This file contains the grammar of TINY plus explanations how to render them
+in BNFC.
+
+-}
+
+-- BNFC expressions that define the part of the grammar for expressions
+-- e ::= N | x | e1 + e2 | e1 ∗ e2 | e1 − e2
+
+-- Each grammar case, called production, has:
+-- + a label (ENum),
+-- + a value category (Expr),
+-- + the case arrow (::=),
+-- + a list that defines the content of the production (one element: Integer),
+-- + the terminator (;).
+ENum. Expr ::= Integer;
+
+-- BNFC has some predefined categories: Integer, Double, Char, String, Ident.
+
+EVar. Expr ::= Ident;
+EPlus. Expr ::= Expr "+" Expr;
+EMul. Expr ::= Expr "*" Expr;
+EMinus. Expr ::= Expr "-" Expr;
+
+-- BNFC expressions that define the part of the grammar for boolean expressions
+-- b ::= true | false | e1 ≤ e2 | ¬b | b1 ∧ b2
+
+-- BNFC expressions that define the part of the grammar for statements
+-- S ::= x := e | skip | S1; S2 | if b then S1 else S2 | while b do S

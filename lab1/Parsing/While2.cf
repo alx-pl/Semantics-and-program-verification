@@ -1,0 +1,30 @@
+{-
+
+This file contains the grammar of TINY plus explanations how to render them
+in BNFC.
+
+-}
+
+-- BNFC expressions that define the part of the grammar for expressions
+-- e ::= N | x | e1 + e2 | e1 ∗ e2 | e1 − e2
+
+-- To enforce precedence we use productions with levels.
+EPlus.   Expr0  ::= Expr0 "+" Expr1; -- The first rule must be for Expr non-terminal
+EMinus.  Expr0  ::= Expr0 "-" Expr1;
+
+EMul.    Expr1 ::= Expr1 "*" Expr2; 
+ENum.    Expr2 ::= Integer;
+EVar.    Expr2 ::= Ident;
+
+
+_.       Expr2 ::= "(" Expr ")"; -- We silently introduce parentheses 
+_.       Expr1  ::= Expr2;       -- We silently make Expr1 and Expr2 equal
+_.       Expr0  ::= Expr1;
+_.       Expr ::= Expr0;         -- We silently make Expr and Expr1 equal
+
+
+-- BNFC expressions that define the part of the grammar for boolean expressions
+-- b ::= true | false | e1 ≤ e2 | ¬b | b1 ∧ b2
+
+-- BNFC expressions that define the part of the grammar for statements
+-- S ::= x := e | skip | S1; S2 | if b then S1 else S2 | while b do S

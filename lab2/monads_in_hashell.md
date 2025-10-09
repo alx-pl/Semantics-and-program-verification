@@ -21,7 +21,7 @@ main = do                                      -- Definiujemy funkcję `main`, p
                                                -- Słówko `do` oznacza, że poniżej znajduje się ciąg operacji monadycznych
   args <- getArgs                              -- Pobierz listę napisów będących argumentami wywołania i umieść wynik w zmiennej `args`
   case args of                                 -- Sprawdź, co zawiera lista
-    ["--help"] -> usage                        -- Dla jednoelementowej listy `["--help]"` wypisz możliwe postaci wywołania (`usage`)
+    ["--help"] -> usage                        -- Dla jednoelementowej listy `["--help"]` wypisz możliwe postaci wywołania (`usage`)
     []         -> getContents >>= run 2 pStmt  -- Dla pustej listy pobież zawartość standardowego wejścia (`getContents`)
                                                -- i na pobranej wartości zastosuj funkcję parsującą instrukcje Tiny
     "-s":fs    -> mapM_ (runFile 0 pStmt) fs   -- Jak wyżej, ale zamiast standardowego wejścia użyj pliku z `fs`
@@ -29,9 +29,9 @@ main = do                                      -- Definiujemy funkcję `main`, p
 ```
 Powyższy kod przedstawia funkcję `main` z programu *While/Test.hs*, którego używaliśmy na poprzednich zajęciach. Funkcja ta jest bezparametrowa i daje wynik w monadycznym typie `IO ()`, czyli monadzie `IO`, przechowującej na potrzeby bieżącego obliczenia wartość jednoelementowego typu `()`.
 
-Monada `IO` jest przykładem monady, w której kontekst, o którym pisaliśmy, nie jest zwykłą strukturą danych, ale czymś nieco innym. Główna różnica, jaką tu mamy, to fakt, że kontekst wewnątrz tej monady może się zmieniać niezależnie od obliczeń, jakie wykonuje nasz program. W istocie należy się spodziewać, że każde odwołanie do tej monady oznacza, iż odwołujemy się do innego stanu tego kontekstu.
+Monada `IO` jest przykładem monady, w której wspomniany wyżej kontekst nie jest zwykłą strukturą danych, ale czymś nieco innym. Główna różnica, jaką tu mamy, to fakt, że kontekst wewnątrz tej monady może się zmieniać niezależnie od obliczeń, jakie wykonuje nasz program. W istocie należy się spodziewać, że każde odwołanie do tej monady oznacza, iż odwołujemy się do innego stanu tego kontekstu.
 
-Operacje, których często używamy, pracując z monadą `IO` to:
+Operacje, których często używamy, pracując z monadą `IO`, to:
 
 * `putChar :: Char -> IO ()`
 * `putStr :: String -> IO ()`
@@ -49,17 +49,25 @@ Operacje, których często używamy, pracując z monadą `IO` to:
 
 Monady w Haskellu przenoszą na grunt tego języka matematyczne pojęcie *monady*, a ściślej mówiąc, tzw. *trójki Kleisliego* ([kilka słów historii](https://en.wikipedia.org/wiki/Monad_(functional_programming)#History)). W skład tej trójki wchodzą trzy elementy:
 
-* Funktor *F : Types -> M( Types )*, który wkłada światy pochodzące z kategorii *Types* (w Haskellu z kategorii typów danych) do kategorii *M(Types)*, „wewnątrz monady *M*”. Przykładem takiego funktora jest `IO`, który wkłada dowolny typ danych Haskella, np. `()` lub `String` w ten sam typ w kontekście interakcji wejścia/wyjścia.
-* Operacja *unit : D -> M(D)*, która dla dowolnego elementu typu danych *D* ze świata *Types* (czyli dla dowolnego typu) daje ten element zapakowany w kontekst monady *M(D)*. W Haskellu ta operacja jest nazywana `return` i ma typ
+* Funktor *F : Types → M( Types )*, który wkłada światy pochodzące z kategorii *Types* (w Haskellu z kategorii typów danych) do kategorii *M(Types)*, „wewnątrz monady *M*”. Przykładem takiego funktora jest `IO`, który wkłada dowolny typ danych Haskella, np. `()` lub `String` w ten sam typ w kontekście interakcji wejścia/wyjścia.
+* Operacja *unit : D → M(D)*, która dla dowolnego elementu typu danych *D* ze świata *Types* (czyli dla dowolnego typu) daje ten element zapakowany w kontekst monady *M(D)*. W Haskellu ta operacja jest nazywana `return` i ma typ
 ```
           return :: Monad m => a -> m a     -- Przy założeniu, że `m` jest monadą, daną typu `a` przekształć w tę samą daną umieszczoną
                                             -- w kontekście monady `m`, czyli w typie `m a`
 ```
-* Operacja *bind : M(D) -> (D -> M(E)) -> M(E)*, która element danych typu *D* umieszczony w kontekście monady *M* przekształca w element danych typu *E* umieszczony w kontekście monady *M*. Przekształcenie, jakie jest tutaj wykonywane, jest określone za pomocą funkcji typu *D -> M(E)*. Operacja ta wykonuje wspomniane na początku tej lekcji wypakowywanie danej z kontekstu, a następnie zapakowywanie wyniku. W Haskellu ta operacja jest wprowadzona za pomocą operatora o symbolu `>>=` i ma typ
+* Operacja *bind : M(D) → (D → M(E)) → M(E)*, która element danych typu *D* umieszczony w kontekście monady *M* przekształca w element danych typu *E* umieszczony w kontekście monady *M*. Przekształcenie, jakie jest tutaj wykonywane, jest określone za pomocą funkcji typu *D → M(E)*. Operacja ta wykonuje wspomniane na początku tej lekcji wypakowywanie danej z kontekstu, a następnie zapakowywanie wyniku. W Haskellu ta operacja jest wprowadzona za pomocą operatora o symbolu `>>=` i ma typ
 ```
           (>>=) :: Monad m => m a -> (a -> m b) -> m b
 ```
 Na co dzień powyższy operator jest nazywany *operatorem bind*.
+
+Można się jeszcze zastanawiać, dlaczego operacja przekształcenia ma typ *D → M(E)*, 
+a nie *M(D) → M(E)*, czy *D → E*. W pierwszym przypadku zwróćmy uwagę, że ta forma jest 
+przydatna, bo zwykle do dyspozycji mamy operacje, jakie działają na typie *D*, a raczej
+dopiero definiujemy operacje, jakie działają na dane wewnątrz monady. Z kolei wynik
+w typie *M(E)* jest o tyle wygodny, że pozwala to na zanurzanie w monadzie, które niekoniecznie
+jest standardowe. Oczywiście bardzo często funkcję tę definiuje się jako złożenie operacji w typie
+*D → E* ze standardowym włożeniem wartości typu *E* do monady. 
 
 ##### Ćwiczenie
 
@@ -136,7 +144,7 @@ Zdefiniowaliśmy tutaj:
 
 * Funkcję `fmap :: Functor f => (a -> b) -> f a -> f b`, która dostając przekształcenie danych typu `a` w dane typu `b` umie wykonać to samo przekształcenie ale „wewnątrz” typu funktorialnego. W naszym przypadku będzie to wewnątrz typu `Flagged`.
 * Funkcję `pure :: Applicative f => a -> f a`, która ma funkcjonalność podobną do funkcji `return`, ale działa na potrzeby API klasy `Applicative`. 
-* Operator infiksowy `(<*>) :: Applicative f => f (a -> b) -> f a -> f b`, który jeśli mamy umieszczoną w kontekście aplikacyjnym funkcję `(a -> b)` i mamy jakąś daną typu `a` też umieszczoną w kontekście aplikacyjnym, to możemy uzyskać wynik zastosowania tej operacji do tej danej umieszczony w kontekście aplikacyjnym.
+* Operator infiksowy `(<*>) :: Applicative f => f (a -> b) -> f a -> f b`, który jeśli mamy umieszczoną w kontekście aplikacyjnym funkcję `(a -> b)` i mamy jakąś daną typu `a`, też umieszczoną w kontekście aplikacyjnym, to możemy uzyskać wynik zastosowania tej operacji do tej danej umieszczony w kontekście aplikacyjnym.
 
 W ten sposób uzbrojeni możemy zdefiniować sobie jakiś ciąg obliczeń wewnątrz monady `Flagged`:
 ```
@@ -148,6 +156,17 @@ someComputations d =
     raiseF w
 ```
 Powyżej doklejamy do napisu wewnątrz monady ciąg `"FFF"`, a następnie podnosimy flagę.
+
+Zwróćmy uwagę, że nasza monada `Flagged` pozwala na dwa rodzaje włożenia zwykłych danych w jej kontekst:
+- 
+- z opuszczoną flagą i
+- z podniesioną flagą.
+
+W tym momencie zaczyna być jasne, dlaczego przydaje się mieć operator kompozycji monadycznej w typie
+
+*bind : Flagged(D) → (D → Flagged(E)) → Flagged(E)*
+
+Mamy teraz możliwość definiowania operacji w typie *D → Flagged(E)*, która daje wynik z flagą opuszczoną, ale także z flagą podniesioną. 
 
 ##### Ćwiczenie
 

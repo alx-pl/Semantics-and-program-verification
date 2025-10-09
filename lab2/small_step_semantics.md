@@ -1,14 +1,24 @@
 ##### Ćwiczenie
 
-Rozpakuj pliki z archiwum [SmallStep.tgz](https://moodle.mimuw.edu.pl/mod/resource/view.php?id=162344). Zorientuj się z zawartości rozpakowanego katalogu. Zajrzyj do pliku *Makefile*, aby zorientować się, co i jak będzie kompilowane.
+Rozpakuj pliki z archiwum [SmallStep.tgz](https://moodle.mimuw.edu.pl/mod/resource/view.php?id=162344). Zapoznaj się z zawartością rozpakowanego katalogu. Zajrzyj do pliku *Makefile*, aby zorientować się, co i jak będzie kompilowane.
 
 ### Pierwsze zetknięcie z semantyką małych kroków
 
-Obejrzyjmy sobie program *Interpreter.hs*. Znajduje się w nim implementacja semantyki języka Tiny literalnie naśladująca semantykę podaną na wykładzie. Funkcja `main` pobiera dane ze standardowego wejścia i przekazuje je do funkcji `compute`. Ta z kolei sprawdza, czy wynik parsowania programu jest prawidłowy, a gdy taki jest wywołuje funkcję `closure`. Funkcja `closure` dokonuje rekurencyjnie domknięcia przechodniego relacji przekształcającej program zgodnie z jego semantyką, czyli wykonuje obliczenie kolejnych konfiguracji
-```
-γ0, γ1, . . . , γi, γi+1, . . . ,
-```
-takich że `γi ⇒ γi+1`. Sama relacja przepisywania jednej konfiguracji w następną jest wykonywana w funkcji `step`. Funkcja ta dokonuje przekształcenia abstrakcyjnego drzewa składni zgodnie z opisem wynikającym z semantyki. Obliczanie wartości wyrażeń arytmetycznych i boolowskich odbywa się w funkcjach `eE` i `eB` zgodnie z opisami tych funkcji, jakie były na wykładzie.
+Obejrzyjmy sobie program *Interpreter.hs*. Znajduje się w nim implementacja semantyki języka Tiny 
+literalnie naśladująca semantykę podaną na wykładzie. Zanim program zacznie być interpretowany
+funkcja `main` pobiera dane ze standardowego wejścia i przekazuje je do funkcji `compute`.
+Ta z kolei sprawdza, czy wynik parsowania programu jest prawidłowy, a gdy taki jest, 
+wywołuje funkcję `closure`. Funkcja `closure` dokonuje rekurencyjnie domknięcia przechodniego
+relacji przekształcającej program zgodnie z jego semantyką, czyli wykonuje obliczenie kolejnych
+konfiguracji
+
+*γ<sub>0</sub>, γ<sub>1</sub>, ... , γ<sub>i</sub>, γ<sub>i+1</sub>, ... *
+
+takich że *γ<sub>i</sub> ⇒ γ<sub>i+1</sub>*. Sama relacja przepisywania jednej konfiguracji
+w następną jest wykonywana w funkcji `step`. Funkcja ta dokonuje przekształcenia drzewa składni 
+abstrakcyjnej zgodnie z opisem wynikającym z semantyki. Obliczanie wartości wyrażeń arytmetycznych
+i boolowskich odbywa się w funkcjach `eE` i `eB` zgodnie z opisami tych funkcji, jakie były na
+wykładzie.
 
 ##### Ćwiczenie
 
@@ -28,11 +38,13 @@ Przedstawione powyżej semantyki wykorzystywały rozwiązanie, w którym odwoła
 
 ##### Ćwiczenie
 
-Przyjrzyj się kodowi programu *Interpreter3.hs*. Zwróć uwagę jak odwołanie do wartości zmiennej różni się od tego, co widać w pliku *Interpreter2.hs*. Zwróć uwagę, jak użyto monady `Maybe` do uproszczenia propagacji błędów.
+Przyjrzyj się kodowi programu *Interpreter3.hs*. Zwróć uwagę, jak odwołanie do wartości zmiennej 
+różni się od tego, co widać w pliku *Interpreter2.hs*. Zwróć uwagę, jak użyto monady `Maybe`
+do uproszczenia propagacji błędów.
 
 ##### Ćwiczenie
 
-Współnie z całą grupą zajęciową napiszcie semantykę małych kroków dla języka o gramatyce:
+Wspólnie z całą grupą zajęciową napiszcie semantykę małych kroków dla języka o gramatyce:
 ```
 S ::= x := e | skip | S1; S2 | if b then S1 else S2 | while b do S | repeat S until b | for x:=e1 to e2 do S | do e times S | do S while b
 b ::= true | false | e1 ≤ e2 | ¬b | b1 ∧ b2

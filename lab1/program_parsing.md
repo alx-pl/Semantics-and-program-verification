@@ -27,7 +27,7 @@ Zapis tej gramatyki w BNFC różni się od powyższego zapisu. Oto główne ró�
 
 * Nazwa symbolu nieterminalnego `Expr` jest wieloliterowa. Mogłaby być jednoliterowa, ale w programach chcemy, aby identyfikatory niosły ze sobą trochę więcej informacji.
 * Każdy symbol terminalny jest otoczony znakami cudzysłowu (np. `"+"`, `"*"`).
-* Każdy przypadek gramatyki jest opisany w oddzielnym wierszu zakończonym znakiem `;`.
+* Każdy przypadek gramatyki jest opisany w oddzielnym wierszu zakończonym znakiem `";"`.
 * Każdy przypadek gramatyki jest opatrzony dodatkową etykietą (np. `ENum`, `EVar` itd.)
 
 Pełny zapis powyższej gramatyki w formacie BNFC ma zatem postać
@@ -62,16 +62,16 @@ O tych wadach nieco więcej dowiemy się odpowiednio w następnych sekcjach *Drz
 
 Już na zajęciach z *Podstaw matematyki* na pierwszym roku studiów wspomniane było, że o wyrażeniach wygodnie jest myśleć jak o drzewach, których wierzchołki są etykietowane nazwami operacji, a potomkowie są ich argumentami. Na przykład wyrażenie `3+4` możemy sobie wyobrazić jako takie drzewo
 ```
-  *
+  +
  / \
 3   4
 ```
 Patrząc w ten sposób, uzyskujemy bardzo wygodne wyidealizowane wyobrażenie tego, czym jest dane wyrażenie. Wyobrażenie to pozbawione jest różnych niejednoznaczności, jakie są związane z zapisem w postaci tekstu. 
 
-Okazuje się, że gramatyki w dosyć naturalny sposób opisują takie drzewa. Z gramatykami związane są przecież drzewa wyprowadzenia. Wierzchołkom wewnętrznym takiego drzewa wygodnie możemy przypisać symbole nieterminalne, które są przekształcane na ciało konkretnego przypadku gramatyki. Z kolei zestaw symboli terminalnych w danym przypadku gramatyki stanowi dosyć wygodną reprezentację operacji, jaka ma być związana z danym wierzchołkiem. Nawiasem mówiąc, liście są też tutaj swego rodzaju „operacjami” – polegającymi na włożeniu napisu w wewnętrzną reprezentację wartości. Tę właśnie zależność wykorzystuje BNFC:
+Okazuje się, że gramatyki w dosyć naturalny sposób opisują takie drzewa. Z gramatykami związane są przecież drzewa wyprowadzenia. Wierzchołkom wewnętrznym takiego drzewa wygodnie możemy przypisać produkcje gramatyki. Wyprowadzany symbol nieterminalny takiej produkcji naturalnie stanowi etykietę dla ciała konkretnego przypadku gramatyki, niejako definiując typ danych. Z kolei zestaw symboli terminalnych w takiej produkcji gramatyki stanowi dosyć wygodną reprezentację operacji, jaka ma być związana z danym wierzchołkiem. Nawiasem mówiąc, liście są też tutaj swego rodzaju „operacjami” – polegającymi na włożeniu napisu w wewnętrzną reprezentację wartości. Tę właśnie zależności wykorzystuje BNFC:
 * symbole nieterminalne (np. `Expr`) służą do określania kategorii syntaktycznych, które mają swoją wyróżnioną reprezentację w implementacji, zwykle w postaci dedykowanego typu danych o odpowiedniej nazwie (np. `Expr`),
 * konkretne produkcje (np. `EPlus. Expr ::= Expr "+" Expr;`) odpowiadają za generowanie konkretnych rodzajów węzłów-operacji (np. węzła "+").
-W tym momencie jaśniejsze staje się, po co są te dodatkowe etykiety takie jak `EPlus` czy `ENum` – one służą do tego, żeby jakoś w kodzie nazwać stosowne wierzchołki drzewa. 
+W tym momencie jaśniejsze staje się, po co są te dodatkowe etykiety takie jak `EPlus` czy `ENum` – one służą do tego, żeby jakoś w kodzie nazwać stosowne rodzaje wierzchołków drzewa, które odpowiadają poszczególnym produkcjom.
 
 ###### Ćwiczenie
 Możemy przyjrzeć się teraz, jak wygląda kod definiujący wewnętrzną reprezentację  drzew wyrażeń arytmetycznych z naszego języka. Znajdziemy go w pliku `While/Abs.hs`. Ma on postać:
@@ -86,11 +86,11 @@ data Expr
 ```
 To jest w istocie opis typu drzew (czyli indukcyjnego typu danych) o nazwie `Expr` z wierzchołkami `ENum`, `EVar`, `EPlus`, `EMul` i `EMinus`. Wierzchołki `ENum` i `EVar` w swoim wnętrzu przechowują odpowiednio liczbę i identyfikator. Pozostałe zaś rodzaje wierzchołków prowadzą do dwóch wierzchołków potomnych, które są wyrażeniami. (Kodu od słówka `deriving` na razie nie wyjaśniamy, zrobimy to później).
 
-(Zainteresowani mogą wygenerować kod w języku C:
+Zainteresowani mogą wygenerować kod w języku C:
 ```
 # bnfc --c -m While1.cf
 ```
-i zajrzeć do pliku `Absyn.h`, żeby się przekonać jak język C definiuje podobne drzewa za pomocą struktur i unii).
+i zajrzeć do pliku `Absyn.h`, żeby się przekonać jak język C definiuje podobne drzewa za pomocą struktur i unii.
 
 ###### Zapis nawiasowy
 
@@ -173,7 +173,7 @@ EMul.    Expr1 ::= Expr1 "*" Expr2;
 ENum.    Expr2 ::= Integer;
 EVar.    Expr2 ::= Ident;
 ```
-Dopisane do nazwy kategorii (tu `Expr`) numerki wskazują, jaki priorytet ma określona produkcja. Im wyższy priorytet, tym „chętniej” parser będzie wykonywał reduckję określonego rodzaju. W szczególności, widząc na wejściu symbol `*` i mając na stosie coś kategorii `Expr`, raczej wczyta (wykona SHIFT) ten symbol niż przekształci symbole ze szczytu stosu w wyrażenie (nie wykona REDUCE).
+Dopisane do nazwy kategorii (tu `Expr`) numerki wskazują, jaki priorytet ma określona produkcja. Im wyższy priorytet, tym „chętniej” parser będzie wykonywał redukcję określonego rodzaju. W szczególności, widząc na wejściu symbol `*` i mając na stosie coś kategorii `Expr`, raczej wczyta (wykona SHIFT) ten symbol niż przekształci symbole ze szczytu stosu w wyrażenie (nie wykona REDUCE).
 
 Dodatkowo w nowym pliku znajdziemy też produkcje z etykietą `_`:
 ```
@@ -186,7 +186,7 @@ Produkcje z taką etykietą nie powodują powstania osobnych nazw dla oznaczonyc
 
 ######  Ćwiczenie
 
-Spróbuj stowrzyć pliki wykonywalne za pomocą opizu z pliku `While2.cf`. Sprawdź na kilku przykładach, jak tym razem wygląda parsowanie.
+Spróbuj stowrzyć pliki wykonywalne za pomocą opisu z pliku `While2.cf`. Sprawdź na kilku przykładach, jak tym razem wygląda parsowanie.
 
 ### Różne sposoby na wyrażenie tego samego
 
@@ -224,20 +224,20 @@ lub lewostronnie (większość wyrażenia znajduje się w pierwszym argumencie):
  / \
 a   b
 ```
-W przypadku operatora sekwencjonowania instrukcji zwykle korzystniejsza jest łączność prawostronna, ale są operatory (np. implikacja), dla których właściwy jest inne rozwiązanie.
+W przypadku operatora sekwencjonowania instrukcji zwykle korzystniejsza jest łączność prawostronna, ale są operatory (np. dzielenie, operacja modulo), dla których właściwe jest inne rozwiązanie.
 
 ######  Ćwiczenie
 Spróbuj poeksperymentować z parsowaniem operatora sekwencjonowania z łącznością lewostronną i prawostronną.
 
 ######  Skrócony `if`
 
-Często w językach programowania pojawia się instrukcja `if` w wersji bez gałęzi `else`. Stosowna gramatyka dla języka Tiny z dodanym tego rodzaju wariantem parsowania znajduje się w pliku `While5.cf`. Jednak gramatyka ta, jak łatwo się przekonać, jest problematyczna. Rozwiązanie ich znajduje się w pliku `While6.cf`. 
+Często w językach programowania pojawia się instrukcja `if` w wersji bez gałęzi `else`. Stosowna gramatyka dla języka Tiny z dodanym tego rodzaju wariantem parsowania znajduje się w pliku `While5.cf`. Jednak gramatyka ta, jak łatwo się przekonać, jest problematyczna. Rozwiązanie widocznych tu kłopotów znajduje się w pliku `While6.cf`. 
 
 W pliku `While6.cf` użyta została konstrukcja
 ```
 internal SIf. Stmt2 ::= "if" BExpr "then" Stmt "else" Stmt;
 ```
-która powoduje wprowadzenie osobnego rodzaju wierzchołka drzewa składni abstrakcyjnej (tutaj jest nim `SIf`), ale nie wprowadza do parsera bezpośrednio reguł redukcji, które w innym wypadku tutaj zostały wprowadzone. W naszym przypadku zastosowanie tego rozwiązania nie jest konieczne, ale czasami składnia docelowa używa tylko szczególnych form pewnego ogólnego wzorca, a czasami po prostu chcemy mieć w drzewie składni określone węzły, ale żadne wyrażenie ze składni „wpisywanej przez programistę” takich węzłów nie generuje (więcej o tym na następnych zajęciach).
+która powoduje wprowadzenie osobnego rodzaju wierzchołka drzewa składni abstrakcyjnej (tutaj jest nim `SIf`), ale nie wprowadza do parsera bezpośrednio reguł redukcji, które w standardowym wypadku tutaj zostałyby wprowadzone. W naszym przypadku zastosowanie tego rozwiązania nie jest konieczne, ale czasami składnia docelowa używa tylko szczególnych form pewnego ogólnego wzorca, a czasami po prostu chcemy mieć w drzewie składni określone węzły, ale żadne wyrażenie ze składni „wpisywanej przez programistę” takich węzłów nie generuje (więcej o tym na następnych zajęciach).
 
 ######  Ćwiczenie
 Jakie problemy stwarza gramatyka z pliku `While5.cf`? 
@@ -251,7 +251,7 @@ W BNFC występuje bardzo naturalne usprawnienie, mianowicie w pliku definiujący
 ```
   : Ident ':=' Expr { While.Abs.SAssgn $1 $3 }
 ```
-mówi, że dla ciągu tokenów, który rozpoznaliśmy jako: identyfikator, znak przypisania, wyrażenie; budujemy drzewo składni abstrakcyjnej, którego typ jest zdefiniowany w module `While.Abs` i którego węzeł nazywa się `SAssgn`. Drzewo to ma dwóch potomków: zawartości pierwszego potomka bierze się z zawartości pierwszego elementu produkcji (`$1`), a zawartość drugiego z trzeciego elementu produkcji (`$3`). Zawartość drugiego elementu produkcji (czyli symbolu `:=`) nie służy do tworzenia żadnych poddrzew.
+mówi, że dla ciągu tokenów, który rozpoznaliśmy jako: *identyfikator, znak przypisania, wyrażenie*; budujemy drzewo składni abstrakcyjnej, którego typ jest zdefiniowany w module `While.Abs` i którego węzeł nazywa się `SAssgn`. Drzewo to ma dwóch potomków: zawartość pierwszego potomka bierze się z zawartości pierwszego elementu produkcji (`$1`), a zawartość drugiego z trzeciego elementu produkcji (`$3`). Zawartość drugiego elementu produkcji (czyli symbolu `:=`) nie służy do tworzenia żadnych poddrzew.
 
 ###### Ćwiczenie
 
